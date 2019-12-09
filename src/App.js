@@ -1,26 +1,30 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import { fetchUsers } from "./services/UserService";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+function App(props) {
+  const [users, setUsers] = useState([]);
+  const [favoriteUsers, setFavoriteUsers] = useState([]);
+  useEffect(() => {
+    fetchUsers().then(users => {
+      setUsers(users);
+    });
+  }, []);
+
+  const toggleFavorite = id => {
+    if (favoriteUsers.includes(id)) {
+      favoriteUsers.filter(user => id !== user.id);
+    } else {
+      [...favoriteUsers, id];
+    }
+    setFavoriteUsers(favoriteUsers);
+    localStorage.setItem("favUsers", JSON.stringify(favoriteUsers));
+  };
+
+  if (users.length === 0) {
+    return <Loader />;
+  } else {
+    return <UsersList users={users} onFavorite={toggleFavorite} />;
+  }
 }
 
 export default App;
